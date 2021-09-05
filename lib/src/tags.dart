@@ -23,6 +23,7 @@ class Tags extends StatefulWidget {
       this.textDirection = TextDirection.ltr,
       this.itemBuilder,
       this.textField,
+      this.scrollController,
       Key key})
       : assert(itemCount >= 0),
         assert(alignment != null),
@@ -78,6 +79,9 @@ class Tags extends StatefulWidget {
   /// custom TextField
   final TagsTextField textField;
 
+  /// list scroll controller
+  final ScrollController scrollController;
+
   @override
   TagsState createState() => TagsState();
 }
@@ -120,6 +124,7 @@ class TagsState extends State<Tags> {
         height: widget.heightHorizontalScroll,
         color: Colors.transparent,
         child: ListView(
+          controller: widget.scrollController == null ? ScrollController() : widget.scrollController,
           padding: EdgeInsets.all(0),
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
@@ -275,6 +280,7 @@ class DataList extends ValueNotifier implements Item {
   }
 
   bool _showDuplicate;
+
   set showDuplicate(bool a) {
     _showDuplicate = a;
     // rebuild only the specific Item that changes its value
@@ -283,6 +289,7 @@ class DataList extends ValueNotifier implements Item {
 
   get active => _active;
   bool _active;
+
   set active(bool a) {
     _active = a;
     // rebuild only the specific Item that changes its value
