@@ -10,21 +10,20 @@ typedef Widget ItemBuilder(int index);
 class Tags extends StatefulWidget {
   Tags(
       {this.columns,
-      this.itemCount = 0,
-      this.symmetry = false,
-      this.horizontalScroll = false,
-      this.heightHorizontalScroll = 60,
-      this.spacing = 6,
-      this.runSpacing = 14,
-      this.alignment = WrapAlignment.center,
-      this.runAlignment = WrapAlignment.center,
-      this.direction = Axis.horizontal,
-      this.verticalDirection = VerticalDirection.down,
-      this.textDirection = TextDirection.ltr,
-      this.itemBuilder,
-      this.textField,
-      this.scrollController,
-      Key key})
+        this.itemCount = 0,
+        this.symmetry = false,
+        this.horizontalScroll = false,
+        this.heightHorizontalScroll = 60,
+        this.spacing = 6,
+        this.runSpacing = 14,
+        this.alignment = WrapAlignment.center,
+        this.runAlignment = WrapAlignment.center,
+        this.direction = Axis.horizontal,
+        this.verticalDirection = VerticalDirection.down,
+        this.textDirection = TextDirection.ltr,
+        this.itemBuilder,
+        this.textField,
+        Key? key})
       : assert(itemCount >= 0),
         assert(alignment != null),
         assert(runAlignment != null),
@@ -34,7 +33,7 @@ class Tags extends StatefulWidget {
         super(key: key);
 
   ///specific number of columns
-  final int columns;
+  final int? columns;
 
   ///numer of item List
   final int itemCount;
@@ -74,13 +73,10 @@ class Tags extends StatefulWidget {
   /// Creates a list with [length] positions and fills it with values created by
   /// calling [generator] for each index in the range `0` .. `length - 1`
   /// in increasing order.
-  final ItemBuilder itemBuilder;
+  final ItemBuilder? itemBuilder;
 
   /// custom TextField
-  final TagsTextField textField;
-
-  /// list scroll controller
-  final ScrollController scrollController;
+  final TagsTextField? textField;
 
   @override
   TagsState createState() => TagsState();
@@ -91,16 +87,16 @@ class TagsState extends State<Tags> {
   Orientation _orientation = Orientation.portrait;
   double _width = 0;
 
-  final List<DataList> _list = List();
+  final List<DataList> _list = [];
 
   List<Item> get getAllItem => _list.toList();
 
   //get the current width of the screen
   void _getWidthContext() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       final keyContext = _containerKey.currentContext;
       if (keyContext != null) {
-        final RenderBox box = keyContext.findRenderObject();
+        final RenderBox box = keyContext.findRenderObject() as RenderBox;
         final size = box.size;
         setState(() {
           _width = size.width;
@@ -124,7 +120,6 @@ class TagsState extends State<Tags> {
         height: widget.heightHorizontalScroll,
         color: Colors.transparent,
         child: ListView(
-          controller: widget.scrollController == null ? ScrollController() : widget.scrollController,
           padding: EdgeInsets.all(0),
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
@@ -160,35 +155,35 @@ class TagsState extends State<Tags> {
     /*if(_list.length < widget.itemCount)
             _list.clear();*/
 
-    final Widget textField = widget.textField != null
+    final Widget? textField = widget.textField != null
         ? Container(
-            alignment: Alignment.center,
-            width: widget.symmetry ? _widthCalc() : widget.textField.width,
-            padding: widget.textField.padding,
-            child: SuggestionsTextField(
-              tagsTextField: widget.textField,
-              onSubmitted: (String str) {
-                if (!widget.textField.duplicates) {
-                  final List<DataList> lst =
-                      _list.where((l) => l.title == str).toList();
+      alignment: Alignment.center,
+      width: widget.symmetry ? _widthCalc() : widget.textField!.width,
+      padding: widget.textField!.padding,
+      child: SuggestionsTextField(
+        tagsTextField: widget.textField!,
+        onSubmitted: (String str) {
+          if (!widget.textField!.duplicates) {
+            final List<DataList> lst =
+            _list.where((l) => l != null && l.title == str).toList();
 
-                  if (lst.isNotEmpty) {
-                    lst.forEach((d) => d.showDuplicate = true);
-                    return;
-                  }
-                }
+            if (lst.isNotEmpty) {
+              lst.forEach((d) => d.showDuplicate = true);
+              return;
+            }
+          }
 
-                if (widget.textField.onSubmitted != null)
-                  widget.textField.onSubmitted(str);
-              },
-            ),
-          )
+          if (widget.textField!.onSubmitted != null)
+            widget.textField!.onSubmitted!(str);
+        },
+      ),
+    )
         : null;
 
-    List<Widget> finalList = List();
+    List<Widget> finalList = [];
 
     List<Widget> itemList = List.generate(widget.itemCount, (i) {
-      final Widget item = widget.itemBuilder(i);
+      final Widget item = widget.itemBuilder!(i);
       if (widget.symmetry)
         return Container(
           width: _widthCalc(),
@@ -238,12 +233,16 @@ class TagsState extends State<Tags> {
 /// Inherited Widget
 class DataListInherited extends InheritedWidget {
   DataListInherited(
-      {Key key, this.list, this.symmetry, this.itemCount, Widget child})
+      {Key? key,
+        this.list,
+        this.symmetry,
+        this.itemCount,
+        required Widget child})
       : super(key: key, child: child);
 
-  final List<DataList> list;
-  final bool symmetry;
-  final int itemCount;
+  final List<DataList>? list;
+  final bool? symmetry;
+  final int? itemCount;
 
   @override
   bool updateShouldNotify(DataListInherited old) {
@@ -253,43 +252,41 @@ class DataListInherited extends InheritedWidget {
 
   /*static DataListInherited of(BuildContext context) =>
       context.inheritFromWidgetOfExactType(DataListInherited);*/
-  static DataListInherited of(BuildContext context) =>
+  static DataListInherited? of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType();
 }
 
 /// Data List
 class DataList extends ValueNotifier implements Item {
   DataList(
-      {@required this.title,
-      this.index,
-      bool highlights = false,
-      bool active = true,
-      this.customData})
+      {required this.title,
+        this.index,
+        bool highlights = false,
+        bool active = true,
+        this.customData})
       : _showDuplicate = highlights,
         _active = active,
         super(active);
 
   final String title;
   final dynamic customData;
-  final int index;
+  final int? index;
 
-  get showDuplicate {
+  bool get showDuplicate {
     final val = _showDuplicate;
     _showDuplicate = false;
     return val;
   }
 
-  bool _showDuplicate;
-
+  bool _showDuplicate = false;
   set showDuplicate(bool a) {
     _showDuplicate = a;
     // rebuild only the specific Item that changes its value
     notifyListeners();
   }
 
-  get active => _active;
-  bool _active;
-
+  bool get active => _active;
+  bool _active = false;
   set active(bool a) {
     _active = a;
     // rebuild only the specific Item that changes its value

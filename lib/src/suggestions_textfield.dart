@@ -13,12 +13,12 @@ typedef OnSubmittedCallback = void Function(String string);
 
 class SuggestionsTextField extends StatefulWidget {
   SuggestionsTextField(
-      {@required this.tagsTextField, this.onSubmitted, Key key})
+      {required this.tagsTextField, this.onSubmitted, Key? key})
       : assert(tagsTextField != null),
         super(key: key);
 
   final TagsTextField tagsTextField;
-  final OnSubmittedCallback onSubmitted;
+  final OnSubmittedCallback? onSubmitted;
 
   @override
   _SuggestionsTextFieldState createState() => _SuggestionsTextFieldState();
@@ -27,14 +27,14 @@ class SuggestionsTextField extends StatefulWidget {
 class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
   final _controller = TextEditingController();
 
-  List<String> _matches = List();
-  String _helperText;
+  List<String> _matches = [];
+  String? _helperText;
   bool _helperCheck = true;
 
-  List<String> _suggestions;
-  bool _constraintSuggestion;
-  double _fontSize;
-  InputDecoration _inputDecoration;
+  List<String>? _suggestions;
+  late bool _constraintSuggestion;
+  double _fontSize = 14;
+  InputDecoration? _inputDecoration;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
     _suggestions = widget.tagsTextField.suggestions;
     _constraintSuggestion = widget.tagsTextField.constraintSuggestion;
     _inputDecoration = widget.tagsTextField.inputDecoration;
-    _fontSize = widget.tagsTextField.textStyle.fontSize;
+    _fontSize = widget.tagsTextField.textStyle.fontSize!;
 
     return Stack(
       alignment: Alignment.centerLeft,
@@ -57,10 +57,10 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
           child: Container(
             //width: double.infinity,
             padding: _inputDecoration != null
-                ? _inputDecoration.contentPadding
+                ? _inputDecoration!.contentPadding
                 : EdgeInsets.symmetric(
-                    vertical: 6 * (_fontSize / 14),
-                    horizontal: 6 * (_fontSize / 14)),
+                vertical: 6 * (_fontSize / 14),
+                horizontal: 6 * (_fontSize / 14)),
             child: Text(
               _matches.isNotEmpty ? (_matches.first) : "",
               softWrap: false,
@@ -69,7 +69,7 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
                 height: widget.tagsTextField.textStyle.height == null
                     ? 1
                     : widget.tagsTextField.textStyle.height,
-                fontSize: _fontSize ?? null,
+                fontSize: _fontSize,
                 color: widget.tagsTextField.suggestionTextColor ?? Colors.red,
               ),
             ),
@@ -105,16 +105,16 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
                 horizontal: 6 * (_fontSize / 14)),
             focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                color: Colors.blueGrey[300],
+                color: Colors.blueGrey[300]!,
               ),
             ),
             enabledBorder: UnderlineInputBorder(
               borderSide:
-                  BorderSide(color: Colors.blueGrey[400].withOpacity(0.3)),
+              BorderSide(color: Colors.blueGrey[400]!.withOpacity(0.3)),
             ),
             border: UnderlineInputBorder(
               borderSide:
-                  BorderSide(color: Colors.blueGrey[400].withOpacity(0.3)),
+              BorderSide(color: Colors.blueGrey[400]!.withOpacity(0.3)),
             ));
 
     return input.copyWith(
@@ -152,7 +152,7 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
   void _checkOnChanged(String str) {
     if (_suggestions != null) {
       _matches =
-          _suggestions.where((String sgt) => sgt.startsWith(str)).toList();
+          _suggestions!.where((String sgt) => sgt.startsWith(str)).toList();
 
       if (str.isEmpty) _matches = [];
 
@@ -160,15 +160,15 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
 
       setState(() {
         _helperCheck =
-            _matches.isNotEmpty || str.isEmpty || !_constraintSuggestion
-                ? true
-                : false;
+        _matches.isNotEmpty || str.isEmpty || !_constraintSuggestion
+            ? true
+            : false;
         _matches.sort((a, b) => a.compareTo(b));
       });
     }
 
     if (widget.tagsTextField.onChanged != null)
-      widget.tagsTextField.onChanged(str);
+      widget.tagsTextField.onChanged!(str);
   }
 }
 
@@ -176,48 +176,48 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
 class TagsTextField {
   TagsTextField(
       {this.lowerCase = false,
-      this.textStyle = const TextStyle(fontSize: 14),
-      this.width = 200,
-      this.padding,
-      this.enabled = true,
-      this.duplicates = false,
-      this.suggestions,
-      this.constraintSuggestion = true,
-      this.autocorrect,
-      this.autofocus,
-      this.hintText,
-      this.hintTextColor,
-      this.suggestionTextColor,
-      this.helperText,
-      this.helperTextStyle,
-      this.keyboardType,
-      this.textCapitalization,
-      this.maxLength,
-      this.inputDecoration,
-      this.onSubmitted,
-      this.onChanged});
+        this.textStyle = const TextStyle(fontSize: 14),
+        this.width = 200,
+        this.padding,
+        this.enabled = true,
+        this.duplicates = false,
+        this.suggestions,
+        this.constraintSuggestion = true,
+        this.autocorrect,
+        this.autofocus,
+        this.hintText,
+        this.hintTextColor,
+        this.suggestionTextColor,
+        this.helperText,
+        this.helperTextStyle,
+        this.keyboardType,
+        this.textCapitalization,
+        this.maxLength,
+        this.inputDecoration,
+        this.onSubmitted,
+        this.onChanged});
 
   final double width;
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
   final bool enabled;
   final bool duplicates;
   final TextStyle textStyle;
-  final InputDecoration inputDecoration;
-  final bool autocorrect;
-  final List<String> suggestions;
+  final InputDecoration? inputDecoration;
+  final bool? autocorrect;
+  final List<String>? suggestions;
 
   /// Allows you to insert tags not present in the list of suggestions
   final bool constraintSuggestion;
   final bool lowerCase;
-  final bool autofocus;
-  final String hintText;
-  final Color hintTextColor;
-  final Color suggestionTextColor;
-  final String helperText;
-  final TextStyle helperTextStyle;
-  final TextInputType keyboardType;
-  final TextCapitalization textCapitalization;
-  final int maxLength;
-  final OnSubmittedCallback onSubmitted;
-  final OnChangedCallback onChanged;
+  final bool? autofocus;
+  final String? hintText;
+  final Color? hintTextColor;
+  final Color? suggestionTextColor;
+  final String? helperText;
+  final TextStyle? helperTextStyle;
+  final TextInputType? keyboardType;
+  final TextCapitalization? textCapitalization;
+  final int? maxLength;
+  final OnSubmittedCallback? onSubmitted;
+  final OnChangedCallback? onChanged;
 }
